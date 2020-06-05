@@ -36,6 +36,7 @@ public class AssociateService {
     public void doVote(AssociateVoteDto request) {
         log.info("AssociateService - doVote - Getting objects from database.");
         if(validateCpf(request).getStatus().equalsIgnoreCase("UNABLE_TO_VOTE")) {
+            log.info("AssociateService - doVote - Cpf unable to vote.");
             throw new UserVoteException(HttpStatus.BAD_REQUEST, ErrorCodeEnum.USER_UNABLE_TO_VOTE,
                     messagesUtils.getCodeAndMessage("user.vote")[1]);
         }
