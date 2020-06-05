@@ -72,9 +72,10 @@ public class AgendaService {
     private void runTask(Agenda agenda) {
         TimerTask task = new TimerTask() {
             public void run() {
-                agenda.setVoteStartedAt(LocalDateTime.now());
-                agenda.setStatus(AgendaStatus.VOTE_CLOSED);
-                agendaRepository.save(agenda);
+                Agenda agendaOpt = agendaRepository.findByAgendaIdentifier(agenda.getAgendaIdentifier()).orElse(new Agenda());
+                agendaOpt.setVoteEndedAt(LocalDateTime.now());
+                agendaOpt.setStatus(AgendaStatus.VOTE_CLOSED);
+                agendaRepository.save(agendaOpt);
                 log.info("AgendaService - runTask - Task terminated.");
             }
         };

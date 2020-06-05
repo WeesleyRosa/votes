@@ -14,8 +14,16 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(AgendaException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessException(AgendaException ex) {
-        log.error("BusinessException - HttpStatus: {} - Error Code: {} - Message: {}", ex.getHttpStatus(), ex.getErrorCode(), ex.getMessage(), ex);
+    public ResponseEntity<ErrorResponse> handleAgendaException(AgendaException ex) {
+        log.error("AgendaException - HttpStatus: {} - Error Code: {} - Message: {}", ex.getHttpStatus(), ex.getErrorCode(), ex.getMessage(), ex);
+
+        ErrorResponse errorResponse = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
+        return ResponseEntity.status(ex.getHttpStatus()).body(errorResponse);
+    }
+
+    @ExceptionHandler(UserVoteException.class)
+    public ResponseEntity<ErrorResponse> handleUserCpfException(AgendaException ex) {
+        log.error("VoteException - HttpStatus: {} - Error Code: {} - Message: {}", ex.getHttpStatus(), ex.getErrorCode(), ex.getMessage(), ex);
 
         ErrorResponse errorResponse = new ErrorResponse(ex.getErrorCode(), ex.getMessage());
         return ResponseEntity.status(ex.getHttpStatus()).body(errorResponse);

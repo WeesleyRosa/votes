@@ -1,5 +1,8 @@
 package com.votes.domain.associate.service;
 
+import com.votes.config.MessagesUtils;
+import com.votes.config.exception.UserVoteException;
+import com.votes.config.exception.enumerator.ErrorCodeEnum;
 import com.votes.domain.agenda.entities.Agenda;
 import com.votes.domain.agenda.entities.enumerator.AgendaStatus;
 import com.votes.domain.agenda.repository.AgendaRepository;
@@ -10,6 +13,7 @@ import com.votes.domain.associate.entities.Associate;
 import com.votes.domain.associate.repository.AssociateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,6 +26,7 @@ public class AssociateService {
     private final AssociateRepository associateRepository;
     private final AgendaRepository agendaRepository;
     private final CpfValidationClient cpfValidationClient;
+    private final MessagesUtils messagesUtils;
 
     public CpfValidationResponse validateCpf(AssociateVoteDto request) {
         log.info("AssociateService - CpfValidationResponse - Sending request to validate cpf.");
@@ -30,7 +35,10 @@ public class AssociateService {
 
     public void doVote(AssociateVoteDto request) {
         log.info("AssociateService - doVote - Getting objects from database.");
-        validateCpf(request);
+        if(validateCpf(request).getStatus().equalsIgnoreCase("UNABLE_TO_VOTE")) {
+            throw new UserVoteException(HttpStatus.BAD_REQUEST, ErrorCodeEnum.USER_UNABLE_TO_VOTE,
+                    messagesUtils.getCodeAndMessage("user.vote")[1]);
+        }
         Optional<Agenda> agenda = agendaRepository.findByAgendaIdentifierAndStatusIs(request.getAgendaIdentifier(), AgendaStatus.VOTING);
         agenda.ifPresent(agendaObj -> {
             log.info("AssociateService - doVote - Agenda found.");
